@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
 
       const { password, ...userData } = user;
 
-      await api.put("/users", userData);
+      await api.put("/users", user);
       localStorage.setItem("@rocketnotes:user", JSON.stringify(userData));
 
       setUserData({ user, token: userData.token });
