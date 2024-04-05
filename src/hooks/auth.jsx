@@ -5,7 +5,7 @@ import { api } from "../services/api";
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
-  const [data, setData] = useState({});
+  const [userData, setUserData] = useState({});
 
   async function signIn({ email, password }) {
     try {
@@ -15,8 +15,8 @@ export function AuthProvider({ children }) {
       localStorage.setItem("@rocketnotes:user", JSON.stringify(user));
       localStorage.setItem("@rocketnotes:token", token);
 
-      api.defaults.headers.authorization = `Bearer ${token}`;
-      setData({ user, token });
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setUserData({ user, token });
     } catch (err) {
       if (err.response) {
         alert(err.response.data.message);
@@ -30,7 +30,33 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("@rocketnotes:token");
     localStorage.removeItem("@rocketnotes:user");
 
-    setData({});
+    setUserData({});
+  }
+
+  async function updateProfile({ user, avatarFile }) {
+    try {
+      if (avatarFile) {
+        const fileUploadForm = new FormData();
+        fileUploadForm.append("avatar", avatarFile);
+
+        const response = await api.patch("users/avatar", fileUploadForm);
+        user.avatar = response.data.avatar;
+      }
+
+      const { password, ...userData } = user;
+
+      await api.put("/users", userData);
+      localStorage.setItem("@rocketnotes:user", JSON.stringify(userData));
+
+      setUserData({ user, token: userData.token });
+      alert("Updated profile!");
+    } catch (err) {
+      if (err.response) {
+        alert(err.response.data.message);
+      } else {
+        alert("Unable to update profile.");
+      }
+    }
   }
 
   useEffect(() => {
@@ -38,9 +64,9 @@ export function AuthProvider({ children }) {
     const user = localStorage.getItem("@rocketnotes:user");
 
     if (token && user) {
-      api.defaults.headers.authorization = `Bearer ${token}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      setData({
+      setUserData({
         token,
         user: JSON.parse(user),
       });
@@ -48,7 +74,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ signIn, signOut, user: data.user }}>
+    <AuthContext.Provider
+      value={{ signIn, signOut, updateProfile, user: userData.user }}
+    >
       {children}
     </AuthContext.Provider>
   );
