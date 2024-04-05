@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Textarea } from "../../components/textarea";
 import { NoteItem } from "../../components/note-item";
 import { Section } from "../../components/section";
 import { Button } from "../../components/button";
+import { ButtonText } from "../../components/button-text";
 import { Header } from "../../components/header";
 import { Input } from "../../components/input";
 
@@ -23,6 +24,10 @@ export function New() {
   const [newTag, setNewTag] = useState("");
 
   const navigate = useNavigate();
+
+  function handleBack() {
+    navigate(-1);
+  }
 
   function handleAddLink() {
     setLinks((prevState) => [...prevState, newLink]);
@@ -67,7 +72,7 @@ export function New() {
     });
 
     alert("Note created successfully!");
-    navigate("/");
+    navigate(-1);
   }
 
   return (
@@ -78,7 +83,7 @@ export function New() {
         <Form>
           <header>
             <h1>Create note</h1>
-            <Link to="/">Back</Link>
+            <ButtonText title="Back" onClick={handleBack} />
           </header>
 
           <Input

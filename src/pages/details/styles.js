@@ -43,7 +43,6 @@ export const Content = styled.div`
   > h1 {
     font-size: 3.6rem;
     font-weight: 500;
-    padding: 6.4rem;
   }
 
   > p {
